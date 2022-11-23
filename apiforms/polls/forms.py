@@ -6,7 +6,7 @@ from crispy_forms.layout import Submit
 from django.forms import ModelForm, Form
 from django_jsonform.models.fields import JSONField
 import json
-from polls.models import EmailJson
+from polls.models import EmailJson,TypeEmail,BasicEmail,DataEmail
 
 class EmailForm(forms.Form):
 
@@ -51,4 +51,26 @@ class JsonForm(forms.ModelForm):
     helper.add_input(Submit('submit', 'Submit', css_class='btn-primary'))
     helper.form_method = 'POST'
 
+CHOICES=[('email_basic','email basic'),
+         ('email_data','email data'),
+         ('dataset','dataset'),
+         ('connection','connect')]
 
+class TypeForm(forms.ModelForm):
+    # emailtype = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect())
+    class Meta:
+        model = TypeEmail
+        fields = "__all__"
+
+class BasicForm(forms.ModelForm):
+    class Meta:
+        model = BasicEmail
+        fields = "__all__"
+
+class DataForm(forms.ModelForm):
+    class Meta:
+        model = DataEmail
+        fields = "__all__"
+    helper = FormHelper()
+    helper.add_input(Submit('submit', 'Submit', css_class='btn-primary'))
+    helper.form_method = 'POST'

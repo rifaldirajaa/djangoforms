@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'polls',
-    'django_jsonform'
+    'django_jsonform',
+    'formtools'
 ]
 
 MIDDLEWARE = [
