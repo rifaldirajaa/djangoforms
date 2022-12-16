@@ -1,8 +1,7 @@
-{% extends 'base.html' %} {% block title %} Create A New Email Job {% endblock %} {% block content %}
+{% extends 'base.html' %} {% block title %} Edit A New Email Job {% endblock %} {% block content %}
 <div>
-  {% load crispy_forms_tags %} {% csrf_token %}
+  {% load crispy_forms_tags %}
   <div>{% crispy form %}</div>
-
   <div>
     <div>{{ data }}</div>
     <div>{{ response}}</div>

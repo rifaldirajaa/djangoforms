@@ -1,0 +1,16 @@
+{% extends "base.html" %} {% block content %}
+<h1>Schedule Jobs</h1>
+<a class="btn btn-primary" href="{% url 'indexdata' %}">Create Job</a>
+<ul>
+  {% for post in object_list %}
+  <li>
+    <a href="{% url 'detail' post.pk %}">{{ post }}</a><br />
+    {{ post }} -
+    <small>
+      <a href="{% url 'update_post' post.pk %}">(Edit)</a>
+      <a href="{% url 'delete_post' post.pk %}">(Delete)</a>
+    </small>
+  </li>
+  {% endfor %}
+</ul>
+{%endblock%}

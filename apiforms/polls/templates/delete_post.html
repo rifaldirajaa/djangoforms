@@ -1,0 +1,19 @@
+{% extends 'base.html' %} {% block title %} Delete Am Email Job {% endblock %} {% block content %}
+<div>
+  <div>
+    <div>{{ dataemail }}</div>
+    <div>{{ dataemail.items }}</div>
+    <div class="form-group">
+      <form method="POST">
+        {% csrf_token %}
+        <button class="btn btn-primary">Delete</button>
+      </form>
+    </div>
+    <!-- <div>{{ response}}</div> -->
+    <!-- <a class="btn btn-primary" href="polls/data/checkschedule">Check Schedule Job</a> -->
+    <!-- <a class="btn btn-primary">Delete</a> -->
+    <a class="btn btn-primary" href="{% url 'home' %}">Home</a>
+  </div>
+</div>
+
+{% endblock %}

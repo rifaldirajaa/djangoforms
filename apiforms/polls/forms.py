@@ -1,8 +1,8 @@
 from django import forms
 from datetime import datetime
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy,reverse
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from crispy_forms.layout import Submit, Button
 from django.forms import ModelForm, Form
 from django_jsonform.models.fields import JSONField
 import json
@@ -73,4 +73,20 @@ class DataForm(forms.ModelForm):
         fields = "__all__"
     helper = FormHelper()
     helper.add_input(Submit('submit', 'Submit', css_class='btn-primary'))
+    helper.form_method = 'POST'
+
+class EditDataForm(forms.ModelForm):
+    class Meta:
+        model = DataEmail
+        fields = "__all__"
+    helper = FormHelper()
+    helper.add_input(Submit('update', 'Update', css_class='btn-primary'))
+    helper.form_method = 'POST'
+
+class DeleteDataForm(forms.ModelForm):
+    class Meta:
+        model = DataEmail
+        fields = "__all__"
+    helper = FormHelper()
+    helper.add_input(Submit('delete', 'DELETE', css_class='btn-danger'))
     helper.form_method = 'POST'

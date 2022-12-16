@@ -1,6 +1,16 @@
 from django.db import models
 from django_jsonform.models.fields import JSONField
+from django.contrib.auth.models import User
+import json
+from django.urls import reverse
 
+class Post(models.Model):
+    title = models.CharField(max_length=255)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    body = models.TextField()
+
+    def __str__(self):
+        return self.title + ' | ' + str(self.author)
 
 
 class EmailJson(models.Model):
@@ -173,15 +183,206 @@ class DataEmail(models.Model):
                 "dataset": {
                 "$ref": "#/$defs/dataset"
                 },
+                "preprocess_data":{
+                "type":"object",
+                "title":"Preprocess_data",
+                "keys":{
+     "Table":
+	{
+		"type":"array",
+		"items":{
+		"type":"object",
+		"keys":{
+                    "table_name": {
+                        "type": "string",
+                        "title": "Table Name",
+                        "required": True
+                        },
+                    "dataset_name": {
+                        "type": "string",
+                        "title": "Dataset Name",
+                        "required": True
+                        },
+                    "show_column": {
+                        "type": "string",
+                        "widget": "textarea",
+                        "title": "Show Column",
+                        "required": False,
+                        "placeholder": "select column from dataset"
+                        }
+		}
+		}
+	},
+      "Bar/Line Chart":
+        {
+                "type": "array",
+                "items": {
+                "type": "object",
+                "keys": {
+                    "type": {
+                "type": "string",
+                "title": "Bar/Line Chart",
+                "required": True,
+                "helpText": "Choose Request Chart",
+                "choices": [
+                    "Line Chart",
+                    "Bar Chart",
+                    "stacked bar",
+                    "clustered bar",
+                    "horizontal stacked bar",
+                    "horizontal clustered bar"
+                ]
+            },
+                    "chart_name": {
+                        "type": "string",
+                        "title": "Chart Name",
+                        "required": True
+                        },
+                    "dataset_name": {
+                        "type": "string",
+                        "title": "Dataset Name",
+                        "required": True
+                        },
+                    "query": {
+                        "type": "string",
+                        "widget": "textarea",
+                        "title": "SQL Query",
+                        "required": True,
+                        "placeholder": "query to dataset",
+                        "helpText": "query must have where clause for time"
+                        },
+                    "plot_title": {
+                        "type": "string",
+                        "title": "plot_title",
+                        "required": False,
+                        "placeholder": "Title",
+                        "helpText": "Title for the Plot"
+                        },
+                   "x_axis": {
+                        "type": "string",
+                        "title": "x_axis",
+                        "required": False,
+                        "placeholder": "column name",
+                        "helpText": "column used as x axis reference on table"
+                        },
+                  "y_axis": {
+                        "type": "string",
+                        "title": "y_axis",
+                        "required": False,
+                        "placeholder": "column name",
+                        "helpText": "column used as x axis reference on table"
+                        },
+                    "legend":{
+                        "type": "string",
+                        "title": "Legend Position",
+                        "required": False,
+                        "helpText": "Choose Legend Position",
+                        "choices": [
+                            "upper left",
+                            "center left",
+                            "bottom left"
+                ]
+                    }
+                }
+                }
+            },
+      "Scatter_Plot":
+        {
+                "type": "array",
+                "items": {
+                "type": "object",
+                "keys": {
+                    "chart_name": {
+                        "type": "string",
+                        "title": "Chart Name",
+                        "required": True
+                        },
+                    "dataset_name": {
+                        "type": "string",
+                        "title": "Dataset Name",
+                        "required": True
+                        },
+                    "query": {
+                        "type": "string",
+                        "widget": "textarea",
+                        "title": "SQL Query",
+                        "required": True,
+                        "placeholder": "query to dataset",
+                        "helpText": "query must have where clause for time"
+                        },
+                   "x_axis": {
+                        "type": "string",
+                        "title": "x_axis",
+                        "required": False,
+                        "placeholder": "column name",
+                        "helpText": "column used as x axis reference on table"
+                        },
+                  "y_axis": {
+                        "type": "string",
+                        "title": "y_axis",
+                        "required": False,
+                        "placeholder": "column name",
+                        "helpText": "column used as x axis reference on table"
+                        }
+                }
+                }
+            },
+      "Pie_chart":
+        {
+                "type": "array",
+                "items": {
+                "type": "object",
+                "keys": {
+                    "chart_name": {
+                        "type": "string",
+                        "title": "Chart Name",
+                        "required": True
+                        },
+                    "dataset_name": {
+                        "type": "string",
+                        "title": "Dataset Name",
+                        "required": True
+                        },
+                    "query": {
+                        "type": "string",
+                        "widget": "textarea",
+                        "title": "SQL Query",
+                        "required": True,
+                        "placeholder": "query to dataset",
+                        "helpText": "query must have where clause for time"
+                        },
+                   "label": {
+                        "type": "string",
+                        "title": "label",
+                        "required": False,
+                        "placeholder": "column name",
+                        "helpText": "column used as label reference on table"
+                        },
+                  "slices": {
+                        "type": "string",
+                        "title": "slices",
+                        "required": False,
+                        "placeholder": "column name",
+                        "helpText": "column used as slices reference on table"
+                        }
+                }
+                }
+            }
+                }
+                },
                 "subject": {
                 "type": "string",
-                "required": True
+                "required": True,
+                "placeholder": "email subject",
+                "helpText": "e.g: Finance data {recepient} on {tanggal(datasetname,colname,day/month/year)}"
                 },
                 "sender": {
                     "type": "string",
                     "title": "email sender",
                     "required": False,
-                    "format": "email"
+                    "format": "email",
+                    "placeholder": "optional email@email.com",
+
                 },
                 "receiver": {
                     "type": "array",
@@ -189,7 +390,8 @@ class DataEmail(models.Model):
                     "required": False,
                     "items": {
                         "type": "string",
-                        "format": "email"
+                        "format": "email",
+                        "placeholder": "optional email@email.com",
                     }
                 },
                 "cc": {
@@ -198,7 +400,8 @@ class DataEmail(models.Model):
                     "required": False,
                     "items": {
                         "type": "string",
-                        "format": "email"
+                        "format": "email",
+                        "placeholder": "optional email@email.com",
                     }
                 },
                 "bcc": {
@@ -207,7 +410,8 @@ class DataEmail(models.Model):
                     "required": False,
                     "items": {
                         "type": "string",
-                        "format": "email"
+                        "format": "email",
+                        "placeholder": "optional email@email.com",
                     }
                 },
                 "receiver_table": {
@@ -223,19 +427,109 @@ class DataEmail(models.Model):
                 "bodyhtml": {
                 "type": "string",
                 "widget": "textarea",
-                "required": True
+                "required": True,
+                "placeholder": "body on email",
+                "helpText": "use {recepient} to include partner name, {tanggal(datasetname,colname,day/month/year)} to include date, {table(tablename,tabel title)} for table,  {image(chartname,chart title)} for plot "
                 },
               "attachment":{
                   "$ref": "#/$defs/attachment"
+                },
+                "schjobid":{
+                    "type": "string",
+                    "title": "scheduler job id",
+                    "required": False,
+                    "helpText": "unique id for job",
+                    "placeholder": "(opt) fill if want to make this a schedule"
+                },
+                "schschedule":{
+                        "type": "string",
+                        "title": "schedule",
+                        "required": False,
+                        "placeholder": "(opt) * * * * *",
+                        "helpText": "using crontab format"
+                },"Daily": {
+                "$ref": "#/$defs/Daily"
+                },
+                "Weekly": {
+                "$ref": "#/$defs/Weekly"
+                },
+                "Monthly": {
+                "$ref": "#/$defs/Monthly"
+                },
+                "Custom": {
+                "$ref": "#/$defs/Custom"
+                },
+                "schtimezone":{
+                        "type": "string",
+                        "title": "timezone",
+                        "required": False,
+                        "placeholder": "(opt) Asia/Jakarta",
+                        "helpText": "timezone for scheduler"
+                },
+                "schdescription":{
+                        "type": "string",
+                        "widget": "textarea",
+                        "title": "description",
+                        "required": False,
+                        "placeholder": "(opt) desc",
+                        "helpText": "description for scheduler"
                 }
         },
             "$defs": {
-                "dataset":{
+                "preprocess":{
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "title":"Preprocess",
+                        "keys":{
+                            "Table":
+        {
                 "type": "array",
                 "items": {
                 "type": "object",
                 "keys": {
-                        "dataset_name": {
+                    "table_name": {
+                        "type": "string",
+                        "title": "Table Name",
+                        "required": True
+                        },
+                    "dataset_name": {
+                        "type": "string",
+                        "title": "Dataset Name",
+                        "required": True
+                        },
+                    "show_column": {
+                        "type": "string",
+                        "widget": "textarea",
+                        "title": "Show Column",
+                        "required": False,
+                        "placeholder": "select column from dataset"
+                        }
+                }
+                }
+            },
+      "Bar/Line Chart":
+        {
+                "type": "array",
+                "items": {
+                "type": "object",
+                "keys": {
+                    "type": {
+                "type": "string",
+                "title": "Bar/Line Chart",
+                "required": True,
+                "helpText": "Choose Request Chart",
+                "choices": [
+                    "Line Chart",
+                    "Bar Chart"
+                ]
+            },
+                    "chart_name": {
+                        "type": "string",
+                        "title": "Chart Name",
+                        "required": True
+                        },
+                    "dataset_name": {
                         "type": "string",
                         "title": "Dataset Name",
                         "required": True
@@ -245,39 +539,146 @@ class DataEmail(models.Model):
                         "widget": "textarea",
                         "title": "SQL Query",
                         "required": True,
-                        "placeholder": "select * from `project.dataset.table` where col_ref ><= date",
+                        "placeholder": "query to dataset",
                         "helpText": "query must have where clause for time"
                         },
-                   "col_ref": {
+                   "x_axis": {
                         "type": "string",
-                        "title": "Date Column (opt)",
+                        "title": "x_axis",
                         "required": False,
                         "placeholder": "column name",
-                        "helpText": "column used as date reference on table"
+                        "helpText": "column used as x axis reference on table"
                         },
-                  "fromdate": {
+                  "y_axis": {
                         "type": "string",
-                        "title": "From Date (opt)",
+                        "title": "y_axis",
                         "required": False,
-                        "placeholder": "yyyy-mm-dd",
-                        "helpText": "if null use datetimenow()"
-                        },
-                  "todate": {
-                        "type": "string",
-                        "title": "To Date (opt)",
-                        "required": False,
-                        "placeholder": "yyyy-mm-dd",
-                        "helpText": "if null use datetimenow()"
+                        "placeholder": "column name",
+                        "helpText": "column used as x axis reference on table"
                         }
                 }
                 }
             },
+      "Scatter_Plot":
+        {
+                "type": "array",
+                "items": {
+                "type": "object",
+                "keys": {
+                    "chart_name": {
+                        "type": "string",
+                        "title": "Chart Name",
+                        "required": True
+                        },
+                    "dataset_name": {
+                        "type": "string",
+                        "title": "Dataset Name",
+                        "required": True
+                        },
+                    "query": {
+                        "type": "string",
+                        "widget": "textarea",
+                        "title": "SQL Query",
+                        "required": True,
+                        "placeholder": "query to dataset",
+                        "helpText": "query must have where clause for time"
+                        },
+                   "x_axis": {
+                        "type": "string",
+                        "title": "x_axis",
+                        "required": False,
+                        "placeholder": "column name",
+                        "helpText": "column used as x axis reference on table"
+                        },
+                  "y_axis": {
+                        "type": "string",
+                        "title": "y_axis",
+                        "required": False,
+                        "placeholder": "column name",
+                        "helpText": "column used as x axis reference on table"
+                        }
+                }
+                }
+            },
+      "Pie_chart":
+        {
+                "type": "array",
+                "items": {
+                "type": "object",
+                "keys": {
+                    "chart_name": {
+                        "type": "string",
+                        "title": "Chart Name",
+                        "required": True
+                        },
+                    "dataset_name": {
+                        "type": "string",
+                        "title": "Dataset Name",
+                        "required": True
+                        },
+                    "query": {
+                        "type": "string",
+                        "widget": "textarea",
+                        "title": "SQL Query",
+                        "required": True,
+                        "placeholder": "query to dataset",
+                        "helpText": "query must have where clause for time"
+                        },
+                   "label": {
+                        "type": "string",
+                        "title": "label",
+                        "required": False,
+                        "placeholder": "column name",
+                        "helpText": "column used as label reference on table"
+                        },
+                  "slices": {
+                        "type": "string",
+                        "title": "slices",
+                        "required": False,
+                        "placeholder": "column name",
+                        "helpText": "column used as slices reference on table"
+                        }
+                }
+                }
+            }
+                        }
+                    }
+                },
+                "dataset":{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "title": "Dataset",
+    "keys": {
+      "dataset_name": {
+        "type": "string",
+        "title":"Dataset Name",
+        "required":True
+      },
+      "query": {
+        "type": "string",
+        "widget":"text area",
+        "title":"SQL Query",
+        "required":True,
+        "place_holder":"query to dataset",
+        "helpText": "select * from `project.dataset.table` where col = {D}/{D-1}"
+      },
+      "col_ref": {
+                        "type": "string",
+                        "title": "reference column",
+                        "required": True,
+                        "placeholder": "column name",
+                        "helpText": "column used as filter reference on table"
+      }
+      }
+    }
+  },
               "attachment":{
                 "type": "array",
                 "items": {
                 "type": "object",
                 "keys": {
-                        "dataset_name": {
+                    "dataset_name": {
                         "type": "string",
                         "title": "Dataset Name",
                         "required": True
@@ -287,8 +688,28 @@ class DataEmail(models.Model):
                         "title": "Attachment Name",
                         "required": True,
                         "placeholder": "filename.csv",
-                        "helpText": "(.xlsx,.xls,.csv)"  
+                        "helpText": "(.xlsx,.xls,.csv,.txt,none)"  
                         },
+                    "delimiter": {
+                        "type": "string",
+                        "title": "Delimiter (opt for csv,txt,none)",
+                        "required": False,
+                        "placeholder": "; , |",
+                        "helpText": "default value: ','"
+                        },
+                    "template":{
+                        "type": "string",
+                        "title": "template name (opt)",
+                        "choices": [
+			    "nan",
+                            "template1",
+                            "template2"
+                        ]
+                    },"templatedate":{
+                        "type": "string",
+                        "title": "date inside template(opt)",
+                        "placeholder": "tanggal(datasetname,kolom,day/month/year)"
+                    },
                    "zipname": {
                         "type": "string",
                         "title": "zip name (opt)",
@@ -303,10 +724,72 @@ class DataEmail(models.Model):
                         "placeholder": "password",
                         "helpText": "enter if want to add password to zipfiles, ignore if dont want password on zipfiles"
                         }
+                },"additionalProperties": {
+                        "type": "string"
+                    },
                 }
-                }
+            },
+            "Daily": {
+      "type": "object",
+      "keys": {
+        "time": {
+          "type": "string",
+          "format": "time",
+          "helpText": "Time where job run on Asia/Jakarta"
+        }
+      }
+    },
+    "Weekly":{
+      "type": "object",
+      "keys": {
+        "Monday": {
+          "type": "boolean",
+          "title": "Monday"},
+        "Tuesday": {
+          "type": "boolean",
+          "title": "Tuesday"},
+        "Wednesday": {
+          "type": "boolean",
+          "title": "Wednesday"},
+        "Thursday": {
+          "type": "boolean",
+          "title": "Thursday"},
+        "Friday": {
+          "type": "boolean",
+          "title": "Friday"},
+        "Saturday": {
+          "type": "boolean",
+          "title": "Saturday"},
+        "Sunday": {
+          "type": "boolean",
+          "title": "Sunday"}
+      }
+    },
+    "Monthly":{
+      "type": "string",
+      "placeholder": "Day of month",
+      "helpText": "e.g: 28,29,30 or 1-7"
+    },
+    "Custom":{
+      "type": "string",
+      "placeholder": "0 12 10-31 * MON-FRI",
+      "helpText": "e.g At 12:00 on every day-of-month from 10 through 31 and Monday to Friday"
+    }
             }
             }
-            }
-            
-    items = JSONField(schema=ITEMS_SCHEMA)
+       
+    items = JSONField(
+        schema=ITEMS_SCHEMA
+        )
+    def __str__(self):
+        subject = str(self.items['subject'])
+        if len(self.items['schjobid'])>0:
+            schjobid = str(self.items['schjobid'])
+            return str(self.items['subject']) + ' | ' + str(self.items['schjobid'])
+        else:
+            schjobid = 'no scheduler'
+            return str(self.items['subject'])
+    
+    def get_absolute_url(self):
+        return reverse('home')
+        
