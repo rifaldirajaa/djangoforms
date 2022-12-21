@@ -441,13 +441,7 @@ class DataEmail(models.Model):
                     "helpText": "unique id for job",
                     "placeholder": "(opt) fill if want to make this a schedule"
                 },
-                "schschedule":{
-                        "type": "string",
-                        "title": "schedule",
-                        "required": False,
-                        "placeholder": "(opt) * * * * *",
-                        "helpText": "using crontab format"
-                },"Daily": {
+                "Daily": {
                 "$ref": "#/$defs/Daily"
                 },
                 "Weekly": {
@@ -455,6 +449,9 @@ class DataEmail(models.Model):
                 },
                 "Monthly": {
                 "$ref": "#/$defs/Monthly"
+                },
+                "Yearly": {
+                "$ref": "#/$defs/Yearly"
                 },
                 "Custom": {
                 "$ref": "#/$defs/Custom"
@@ -730,45 +727,40 @@ class DataEmail(models.Model):
                 }
             },
             "Daily": {
-      "type": "object",
-      "keys": {
-        "time": {
-          "type": "string",
-          "format": "time",
-          "helpText": "Time where job run on Asia/Jakarta"
-        }
-      }
+                "type": "object",
+                "keys": {
+                    "time": {
+                        "type": "string",
+                        "format": "time",
+                        "helpText": "Time where job run on Asia/Jakarta"
+                    }
+                }
     },
     "Weekly":{
-      "type": "object",
-      "keys": {
-        "Monday": {
-          "type": "boolean",
-          "title": "Monday"},
-        "Tuesday": {
-          "type": "boolean",
-          "title": "Tuesday"},
-        "Wednesday": {
-          "type": "boolean",
-          "title": "Wednesday"},
-        "Thursday": {
-          "type": "boolean",
-          "title": "Thursday"},
-        "Friday": {
-          "type": "boolean",
-          "title": "Friday"},
-        "Saturday": {
-          "type": "boolean",
-          "title": "Saturday"},
-        "Sunday": {
-          "type": "boolean",
-          "title": "Sunday"}
-      }
+        "type": "array",
+        "titles": "Day",
+        "items": {
+        "type": "string",
+        "choices": [
+        "MON","TUE","THU","WED","FRI","SAT","SUN"
+        ],
+        "widget": "multiselect"
+        }       
     },
     "Monthly":{
       "type": "string",
       "placeholder": "Day of month",
       "helpText": "e.g: 28,29,30 or 1-7"
+    },
+    "Yearly":{
+        "type": "array",
+        "items": {
+        "type": "string",
+        "choices": [
+        "JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"
+        ],
+        "widget": "multiselect"
+        }       
     },
     "Custom":{
       "type": "string",
@@ -782,12 +774,9 @@ class DataEmail(models.Model):
         schema=ITEMS_SCHEMA
         )
     def __str__(self):
-        subject = str(self.items['subject'])
         if len(self.items['schjobid'])>0:
-            schjobid = str(self.items['schjobid'])
             return str(self.items['subject']) + ' | ' + str(self.items['schjobid'])
         else:
-            schjobid = 'no scheduler'
             return str(self.items['subject'])
     
     def get_absolute_url(self):

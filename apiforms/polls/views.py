@@ -73,7 +73,7 @@ class UpdatePostView(UpdateView):
       if len(jsondata['schjobid'])>0:
         client,project = get_cloud_scheduler_client(sapath)
         jobid = jsondata['schjobid']
-        schedule = jsondata['schschedule']
+        schedule = makecron(jsondata)
         timezone = jsondata['schtimezone']
         description = jsondata['schdescription']
         try:
@@ -178,12 +178,9 @@ def process_form_data(form_list):
 def indexdata(request):
     context ={}
     form = DataForm(request.POST or None)
-    
+    print(form.data)
     if form.is_valid():
-        # save the form data to model
-        # form.save()
         formlist = [form]
-        # form.save()
         jsondata = json.loads(form.data['items'])
         print(jsondata)
         retlis,datalis = mixmatch(jsondata['bodyhtml'],jsondata)
@@ -193,33 +190,35 @@ def indexdata(request):
         if len(jsondata['schjobid'])>0:
           client,project = get_cloud_scheduler_client(sapath)
           jobid = jsondata['schjobid']
-          schedule = jsondata['schschedule']
+          schedule = makecron(jsondata)
           timezone = jsondata['schtimezone']
           description = jsondata['schdescription']
-          try:
-            output=create_job(client, projectid, jobid, schedule, jsonfinal, timezone, description, location='asia-southeast2')
-            print('Succes')
-            print(output)
-            form.save()
-            context['data']=output
-          except Exception as e:
-            print('Failed')
-            print(e)
-            context['data']=e
-        elif len(jsondata['schjobid'])==0:
-          r = requests.post(
-                  audience, 
-                  headers={'Authorization': f"Bearer {TOKEN}", "Content-Type": "application/json"},
-                  data=json.dumps(jsonfinal)  # possible request parameters
-          )
-          if r.status_code=='200':
-            context['response']=r.status_code, r.text
-            form.save()
-            print(r.status_code, r.text)
-          else:
-            context['response']=r.status_code, r.text
-          context['data']=jsonfinal
+        #   try:
+        #     # output=create_job(client, projectid, jobid, schedule, jsonfinal, timezone, description, location='asia-southeast2')
+        #     # print('Succes')
+        #     # print(output)
+        #     # form.save()
+        #     context['data']=output
+        #   except Exception as e:
+        #     print('Failed')
+        #     print(e)
+        #     context['data']=e
+        # elif len(jsondata['schjobid'])==0:
+        #   r = requests.post(
+        #           audience, 
+        #           headers={'Authorization': f"Bearer {TOKEN}", "Content-Type": "application/json"},
+        #           data=json.dumps(jsonfinal)  # possible request parameters
+        #   )
+        #   if r.status_code=='200':
+        #     context['response']=r.status_code, r.text
+        #     form.save()
+        #     print(r.status_code, r.text)
+        #   else:
+        #     context['response']=r.status_code, r.text
+        #   context['data']=jsonfinal
     else:
+        print("form is not valid!")
+        print(form.errors.as_json())
         form = DataForm()
         
     context['form']= form
@@ -471,3 +470,28 @@ def update_job(cs_client, project_id, job_id, schedule, bodyreq, timezone, descr
       )
     response = cs_client.update_job(request=request)
     return response
+
+def makecron(jsonbaru):
+  if len(jsonbaru['Custom'])>0:
+    cronsch = jsonbaru['Custom']
+  else:
+    if len(jsonbaru['Daily']['time'])>0:
+      timearr = jsonbaru['Daily']['time'].split(":")
+      time = ' '.join([timearr[1],timearr[0]])
+    else:
+      time = ' '.join(['00','00'])
+    if len(jsonbaru['Monthly'])>0:
+      daymonth = jsonbaru['Monthly']
+    else:
+      daymonth = "*"
+    if len(jsonbaru['Yearly'])>0:
+      monthyear = ','.join(map(str,jsonbaru['Yearly']))
+    else:
+      monthyear = "*"
+    if len(jsonbaru['Weekly'])>0:
+      dayweek = ','.join(map(str,jsonbaru['Weekly']))
+    else:
+      dayweek = "*"
+    cronsch=" ".join([time,daymonth,monthyear,dayweek])
+  return cronsch
+

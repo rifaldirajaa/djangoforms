@@ -27,7 +27,7 @@ httplib2==0.20.4
 idna==3.3
 importlib-resources==5.10.0
 jsonschema==4.17.0
-numpy==1.21.4
+numpy==1.23.5
 oauthlib==3.2.1
 opencv-python==4.5.4.60
 pipenv==2022.7.24
